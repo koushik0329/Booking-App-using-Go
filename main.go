@@ -3,6 +3,7 @@ package main
 import (
 	"booking-app/helper"
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -18,13 +19,16 @@ import (
 		numberOfTickets uint
 	}
 
+
+	var wg = sync.WaitGroup{}
+	
 func main() {
 	
 
 	greetUsers()
 	
 	
-for{
+
 	
 	firstName, lastName, email, userTickets:=getUserInput()
 
@@ -33,14 +37,15 @@ for{
 	if isValidEmail && isValidName && isValidTicketNumber{
 		
 		bookTicket(userTickets, firstName, lastName, email)
-		sendTicket(userTickets, firstName, lastName, email)
+		wg.Add(1)
+		go sendTicket(userTickets, firstName, lastName, email)
 
 		firstNames := getFirstNames()
 		fmt.Printf("the first names of bookings are: %v\n",firstNames)
 
 		if remainingTickets==0{
 			fmt.Println("Our conference is booked out. Come back next year")
-			break
+			
 		}
 	}else{
 		if !isValidName{
@@ -54,9 +59,9 @@ for{
 		}
 		
 	}
+	wg.Wait()
 	
 
-}
 
 	
 }
@@ -125,9 +130,10 @@ func bookTicket(userTickets uint,  firstName string, lastName string, email stri
 }
 
 func sendTicket(userTickets uint, firstName string, lastName string, email string){
-	time.Sleep(10 * time.Second)
+	time.Sleep(50 * time.Second)
 	var ticket =fmt.Sprintf("%v tickets for %v %v", userTickets, firstName, lastName)
 	fmt.Println("##########")
 	fmt.Printf("Sending ticket:\n %v \nto email address %v\n", ticket, email)
 	fmt.Println("##########")
+	wg.Done()
 }
